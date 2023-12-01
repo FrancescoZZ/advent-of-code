@@ -1,5 +1,5 @@
 // https://adventofcode.com/2022/day/2
-import { headers } from './config.mjs';
+import { headers } from '../config.mjs';
 
 const points = {
   'A': 1,

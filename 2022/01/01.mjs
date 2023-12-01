@@ -1,5 +1,5 @@
 // https://adventofcode.com/2022/day/1
-import { headers } from './config.mjs';
+import { headers } from '../config.mjs';
 
 const text = await fetch("https://adventofcode.com/2022/day/1/input", headers)
   .then(resp => resp.text())

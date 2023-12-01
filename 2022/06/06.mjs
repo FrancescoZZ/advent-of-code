@@ -1,5 +1,5 @@
 // https://adventofcode.com/2022/day/6
-import { headers } from './config.mjs';
+import { headers } from '../config.mjs';
 
 
 const data = await fetch("https://adventofcode.com/2022/day/6/input", headers)
