@@ -17,12 +17,29 @@ const max = {
 }
 
 var sum = 0;
+var totalPower = 0;
 
 games.forEach((game, gameid) => {
-    if(game.every(item => item.num <= max[item.col])) {
-        sum += gameid + 1
+  if(game.every(item => item.num <= max[item.col])) {
+    sum += gameid + 1
+  }
+
+  var largest = {
+    red: 0,
+    green: 0,
+    blue: 0
+  }
+
+  game.forEach(item => {
+    if(item.num > largest[item.col]) {
+      largest[item.col] = item.num;
     }
+  })
+
+  totalPower += (largest.red * largest.green * largest.blue)
+
 })
 
 console.log(sum);
+console.log(totalPower);
 
