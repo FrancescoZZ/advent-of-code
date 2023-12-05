@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/AbcSize
 
 require 'set'
 
@@ -15,15 +14,14 @@ COLUMNS = DATA.first.length
 
 MOVES = [[0, 1], [0, -1], [-1, 0], [1, 0]].freeze
 
-def bfs(graph, root, part)
+def bfs(graph, root, target)
   explored = Set.new([root])
   queue = [[root, 0]]
 
   while queue.any?
     current, steps = queue.shift
     row, col = current
-    steps = 0 if DATA[row][col] == 'a' && part == 2
-    return steps if DATA[row][col] == 'E'
+    return steps if DATA[row][col] == target
 
     graph[current].each do |neighbor|
       next if explored.include?(neighbor)
@@ -53,7 +51,7 @@ def valid?(row, col, r_new, c_new)
   current = elevation(DATA[row][col])
   new = elevation(DATA[r_new][c_new])
 
-  new - current <= 1
+  current - new <= 1
 end
 
 def neighbors(row, col)
@@ -82,9 +80,10 @@ end
 
 def solve(part)
   node_graph = build_graph
-  root = node_graph.keys.find { |r, c| DATA[r][c] == 'S' }
+  root = node_graph.keys.find { |r, c| DATA[r][c] == 'E' }
+  target = part == 2 ? 'a' : 'S'
 
-  bfs(node_graph, root, part)
+  bfs(node_graph, root, target)
 end
 
 puts solve(1)
