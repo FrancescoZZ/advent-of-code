@@ -39,12 +39,12 @@ def hand_value(hand)
   end
 end
 
-def compare_cards(a, b)
+def compare_hands(a, b)
   val_a = hand_value(a)
   val_b = hand_value(b)
   return val_a - val_b unless val_a == val_b
 
-  a.length.times do |i|
+  5.times do |i|
     diff = card_value(a[i]) - card_value(b[i])
     return diff unless diff.zero?
   end
@@ -54,7 +54,7 @@ end
 
 2.times do |t|
   $part = t + 1
-  sorted_hands = data.sort { |a, b| compare_cards(a.first, b.first) }
+  sorted_hands = data.sort { |a, b| compare_hands(a.first, b.first) }
   hand_winnings = sorted_hands.each_with_index
                               .reduce(0) { |sum, ((_c, bid), i)| sum + bid * (i + 1) }
   p hand_winnings
