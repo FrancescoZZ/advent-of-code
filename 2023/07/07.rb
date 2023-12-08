@@ -17,6 +17,7 @@ def card_value(card)
   end
 end
 
+# Returns sorted array of number of instances of each card
 def sort_cards(hand)
   cards = Hash.new(0)
   hand.chars.each { |card| cards[card] += 1 unless card == 'J' && $part == 2 }
@@ -28,13 +29,13 @@ def sort_cards(hand)
 end
 
 def hand_value(hand)
-  values = sort_cards(hand)
+  card_counts = sort_cards(hand)
 
-  case values.last
+  case card_counts.last
   when 5 then 6
   when 4 then 5
-  when 3 then values[-2] == 2 ? 4 : 3
-  when 2 then values[-2] == 2 ? 2 : 1
+  when 3 then card_counts[-2] == 2 ? 4 : 3
+  when 2 then card_counts[-2] == 2 ? 2 : 1
   else 0
   end
 end
