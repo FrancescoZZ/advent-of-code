@@ -99,7 +99,7 @@ DATA.each_with_index do |row, r|
       case char
       when '|'
         inside = !inside
-        edge_start = edge_start == '' ? '|' : ''
+        # edge_start = edge_start == '' ? '|' : ''
       when 'L', 'F'
         edge_start = char
       when '7'
