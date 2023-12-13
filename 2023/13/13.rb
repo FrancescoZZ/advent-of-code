@@ -14,16 +14,14 @@ end
 
 def reflection?(pattern, (left, right))
   smudge_count = 0
-  while left >= 0 && right < pattern.length
-    if pattern[left] != pattern[right]
-      return false unless smudge_count < 1 && smudge?(pattern[left], pattern[right]) && @part == 2
+  pattern[..left].reverse.zip(pattern[right..])
+                 .filter { _1.compact.length == 2 }
+                 .each do |a, b|
+                   next unless a != b
+                   return false unless @part == 2 && smudge_count < 1 && smudge?(a, b)
 
-      smudge_count += 1
-    end
-
-    left -= 1
-    right += 1
-  end
+                   smudge_count += 1
+                 end
   @part == 2 ? smudge_count == 1 : true
 end
 
