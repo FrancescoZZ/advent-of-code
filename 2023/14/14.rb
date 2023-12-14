@@ -7,15 +7,26 @@ COLS = input.first.length
 ROWS = input.length
 NWSE = [[-1, 0], [0, -1], [1, 0], [0, 1]]
 
-SQUARES, circles = input.flatten
+# Stores coordinates of rocks into two sets
+SQUARES, CIRCLES = input.flatten
                         .each_with_index
-                        .each_with_object([Set.new, Set.new]) do |(c, i), arr|
-  arr.first << i.divmod(COLS) if c == '#'
-  arr.last << i.divmod(COLS) if c == 'O'
+                        .each_with_object([Set.new, Set.new]) do |(c, i), (sr, rr)|
+  sr << i.divmod(COLS) if c == '#'
+  rr << i.divmod(COLS) if c == 'O'
 end
 
-def tilt(circle, circles, (dr, dc))
-  until SQUARES.include?(circle) || circles.include?(circle) || circle.any?(&:negative?) || circle.first >= ROWS || circle.last >= COLS
+# Returns true if the rock's new position is illegal
+def not_valid?(circle)
+  SQUARES.include?(circle) ||
+    CIRCLES.include?(circle) ||
+    circle.any?(&:negative?) ||
+    circle.first >= ROWS ||
+    circle.last >= COLS
+end
+
+# Moves the rock in the desired direction until it meets an obstacle
+def tilt(circle, (dr, dc))
+  until not_valid?(circle)
     circle[0] += dr
     circle[1] += dc
   end
@@ -29,16 +40,23 @@ repeating = []
 1_000_000_000.times do |i|
   sequence = []
   NWSE.each do |dir|
+    # Sorts the rocks:
+    # Top -> Bottom, Left -> Right for N & W
+    # Bottom -> Top, Right -> Left for S & E
     sign = dir.reject(&:zero?).first
-    circles.to_a
+    CIRCLES.to_a
            .sort { |(aa, ab), (ba, bb)| aa == ba ? sign * (bb - ab) : sign * (ba - aa) }
            .each do |circle|
-      circles.delete(circle)
-      circles << tilt(circle, circles, dir)
+      # Updates the rock's coordinates
+      CIRCLES.delete(circle)
+      CIRCLES << tilt(circle, dir)
     end
-    sequence << circles.to_a.reduce(0) { |load, (r, _c)| load + ROWS - r }
+    # Calculates the total load, stores it into the sequence array
+    sequence << CIRCLES.to_a.reduce(0) { |load, (r, _c)| load + ROWS - r }
   end
+  # Prints the answer to Part 1
   puts sequence.first if i.zero?
+  # If the sequence has appeared before, the arrangements have begun looping
   if sequences.key? sequence
     repeating = [sequence, i + 1]
     break
