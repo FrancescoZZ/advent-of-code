@@ -1,61 +1,60 @@
-# frozen_string_literal: true
-
+# rubocop:disable Metrics
+#
 require 'set'
 
 input = File.open('input').read
 instructions = input.split("\n").map(&:split)
 
-def move(x, y, dir)
+def move(x, y, dir, length)
   case dir
-  when 'U' then y += 1
-  when 'D' then y -= 1
-  when 'L' then x -= 1
-  when 'R' then x += 1
+  when 'U' then y += length
+  when 'D' then y -= length
+  when 'L' then x -= length
+  when 'R' then x += length
   end
   [x, y]
 end
 
-trench = Set.new
-x = 0
-y = 0
-
-instructions.each do |inst|
-  inst[1].to_i.times do
-    trench << [x, y]
-    x, y = move(x, y, inst[0])
-  end
+def direction_groups(instructions)
+  (instructions.map(&:first).flatten.join * 3)
+    .slice(instructions.length - 1, instructions.length + 3)
+    .chars.each_cons(3).map(&:join)
 end
 
-lagoon = Set.new
+def find_area(instructions, directions)
+  x = 0
+  y = 0
+  trench = []
 
-(x_min, x_max), (y_min, y_max) = trench.to_a.transpose.map(&:minmax)
-
-y_max.downto(y_min) do |y|
-  inside = false
-  edge = ''
-  x_min.upto(x_max) do |x|
-    if trench.include?([x, y])
-      print '#'
-      if (trench.include?([x, y - 1]) && trench.include?([x, y + 1])) ||
-         (trench.include?([x - 1, y]) && trench.include?([x, y + 1])) && edge == 'top' ||
-         (trench.include?([x - 1, y]) && trench.include?([x, y - 1]) && edge == 'bottom')
-        inside = !inside
-        edge = ''
-      elsif trench.include?([x, y - 1]) && trench.include?([x + 1, y])
-        edge = 'top'
-      elsif trench.include?([x, y + 1]) && trench.include?([x + 1, y])
-        edge = 'bottom'
-      end
-    elsif inside
-      print '.'
-      lagoon << [x, y]
-    else
-      print ' '
+  instructions.zip(directions).each do |((dir, length_s, _hex), group)|
+    length = length_s.to_i
+    case group
+    when /URD|DLU/
+      length += 1
+    when /ULD|DRU/
+      length -= 1
+    when /RDL|LUR/
+      length += 1
+    when /LDR|RUL/
+      length -= 1
     end
+    nx, ny = move(x, y, dir, length)
+    trench << [nx, ny]
+    x = nx
+    y = ny
   end
-  print "\n"
+
+  # Shoelace formula
+  # # A = 0.5 * |(x1*y2 - x2*y1) + (x2*y3 - x3*y2) + ... + (xn*y1 - x1*yn)|
+  trench.each_cons(2).reduce(0) { |sum, ((x1, y1), (x2, y2))| sum + (x1 * y2 - x2 * y1) }.abs / 2
 end
 
-p trench.size
-p lagoon.size
-p trench.size + lagoon.size
+directions = direction_groups(instructions)
+p find_area(instructions, directions)
+
+key = { '0' => 'R', '1' => 'D', '2' => 'L', '3' => 'U' }
+
+new_instructions = instructions.map { |l| l[2].match(/\(#(.*)\)/)[1] }
+  .map { |code| [key[code[-1]], code[...-1].to_i(16)] }
+new_directions = direction_groups(new_instructions)
+p find_area(new_instructions, new_directions)
