@@ -20,7 +20,7 @@ def bfs(graph, root, limit)
   queue = [[root, 0]]
   while queue.any?
     current, steps = queue.shift
-    final << current if steps <= limit && steps.even?
+    final << current if steps.even?
     next if steps == limit
 
     graph[current].each do |neighbor|
