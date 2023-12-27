@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Lint
 # rubocop:disable Metrics
 
 # Node in undirected graph
@@ -10,18 +9,6 @@ class Node
   def initialize(node_count = 1, neighbors = [])
     @node_count = node_count
     @neighbors = neighbors
-  end
-end
-
-input = File.open('input').read.split("\n")
-
-def build_graph(data)
-  data.each_with_object(Hash.new { |h, k| h[k] = Node.new }) do |line, hash|
-    from, rest = line.split(': ')
-    rest.split.each do |to|
-      hash[from].neighbors << to
-      hash[to].neighbors << from
-    end
   end
 end
 
@@ -40,16 +27,24 @@ def collapse(graph)
     graph.delete(v)
   end
 
-  graph
+  graph.values
 end
 
-loop do
-  new_graph = build_graph(input)
-  size = new_graph.size
-  collapsed_graph = collapse(build_graph(input))
-  partition = collapsed_graph.first.last
-  next unless partition.neighbors.size == 3
+graph = File.open('input').read.split("\n")
+            .each_with_object(Hash.new { |h, k| h[k] = Node.new }) do |line, hash|
+  from, rest = line.split(': ')
+  rest.split.each do |to|
+    hash[from].neighbors << to
+    hash[to].neighbors << from
+  end
+end
+graph.default = nil
 
-  puts partition.node_count * (size - partition.node_count)
+loop do
+  new_graph = Marshal.load(Marshal.dump(graph))
+  partition1, partition2 = collapse(new_graph)
+  next unless partition1.neighbors.size == 3
+
+  puts partition1.node_count * partition2.node_count
   break
 end
